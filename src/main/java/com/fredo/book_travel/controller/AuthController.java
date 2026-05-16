@@ -1,6 +1,7 @@
 package com.fredo.book_travel.controller;
 
 import com.fredo.book_travel.dto.request.LoginRequest.LoginRequestDto;
+import com.fredo.book_travel.dto.request.UserRequest.CreateUserRequestDto;
 import com.fredo.book_travel.service.securityService.AuthService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,4 +21,10 @@ public class AuthController {
     public String login(@RequestBody LoginRequestDto dto){
         return authService.login(dto);
     }
+
+    @PostMapping("/createaccount")
+    public String createAccount(@RequestBody CreateUserRequestDto dto){
+        return authService.createUser(dto);
+    }
+
 }

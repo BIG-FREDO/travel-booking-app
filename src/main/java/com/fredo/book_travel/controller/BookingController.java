@@ -6,6 +6,8 @@ import com.fredo.book_travel.dto.response.BookingResponseDto;
 import com.fredo.book_travel.entity.Booking;
 import com.fredo.book_travel.service.BookingService;
 import org.hibernate.sql.Update;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,31 +23,37 @@ public class BookingController {
     }
 
     @GetMapping("/getBookings")
+    @PreAuthorize("hasAuthority('BACKEND_SETTINGS')")
     public List<BookingResponseDto> getBookings(){
         return bookingService.getBookings();
     }
 
-    @GetMapping("/getBooking/{id}")
-    public BookingResponseDto getBooking(@PathVariable("id") Integer id){
-       return bookingService.getBooking(id);
+    @GetMapping("/findBooking/{id}")
+    @PreAuthorize("hasAnyRole('USER')")
+    public BookingResponseDto getBooking(@PathVariable("id") Integer id, Authentication auth){
+       return bookingService.getBooking(id, auth);
     }
 
-    @GetMapping("/getUserBookings/{id}")
-    public List<BookingResponseDto> getUserBookings(@PathVariable Integer id){
-        return bookingService.getUserBookings(id);
+    @GetMapping("/MyBookings")
+    @PreAuthorize("hasAnyRole('USER')")
+    public List<BookingResponseDto> getUserBookings(Authentication auth){
+        return bookingService.getUserBookings(auth);
     }
 
-    @PostMapping("/createBooking/{id}")
-    public void createBooking(@RequestBody CreateBookingRequestDto dto, @PathVariable("id") Integer id){ bookingService.createBooking(dto, id);
+    @PostMapping("/createBooking")
+    @PreAuthorize("hasAuthority('BOOKING_CREATE')")
+    public String createBooking(@RequestBody CreateBookingRequestDto dto, Authentication auth){ return bookingService.createBooking(dto, auth);
     }
 
-    @PutMapping("/update/{id}")
-    public BookingResponseDto updateBooking(@PathVariable("id") Integer id, @RequestBody UpdateBookingRequestDto dto){
-        return bookingService.updateBooking(id,dto);
+    @PutMapping("/updateBooking/{id}")
+    @PreAuthorize("hasAuthority('BOOKING_UPDATE')")
+    public BookingResponseDto updateBooking(@PathVariable("id") Integer id, @RequestBody UpdateBookingRequestDto dto, Authentication auth){
+        return bookingService.updateBooking(id,dto, auth);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public void deleteBooking(@PathVariable("id") Integer id){
-        bookingService.deleteBooking(id);
+    @DeleteMapping("/deleteBooking/{id}")
+    @PreAuthorize("hasAuthority('BOOKING_DELETE')")
+    public String deleteBooking(@PathVariable("id") Integer id, Authentication auth){
+        return bookingService.deleteBooking(id, auth);
     }
 }

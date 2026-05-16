@@ -1,31 +1,46 @@
 package com.fredo.book_travel.service.securityService;
 
+import com.fredo.book_travel.Mapper.UserMapper;
 import com.fredo.book_travel.dto.request.LoginRequest.LoginRequestDto;
+import com.fredo.book_travel.dto.request.UserRequest.CreateUserRequestDto;
 import com.fredo.book_travel.entity.User;
 import com.fredo.book_travel.repository.UserRepository;
-import org.springframework.http.HttpStatus;
+import com.fredo.book_travel.security.jwtFilters.JWTUtil;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AuthService {
     private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JWTUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, AuthenticationManager authenticationManager, JWTUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
     }
 
 
     public String login(LoginRequestDto dto) {
-        User user = userRepository.findByUsername(dto.username())
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "User Not Found"));
-
-        if(passwordEncoder.matches(dto.password(), user.getPassword())){
-            return "Hello " + user.getName() + "! Welcome Back.\n";
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(dto.username(), dto.password())
+            );
+            return jwtUtil.generateToken(dto.username());
+        } catch (Exception e) {
+            throw e;
         }
-        return "Incorrect Password \n";
+    }
+
+    public String createUser(CreateUserRequestDto dto) {
+        User user = UserMapper.toEntity(dto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+        return user.getName() + " Your account has been created successfully!.";
     }
 }

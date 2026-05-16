@@ -63,6 +63,10 @@ public class Booking {
         this.user = user;
     }
 
+    public Integer getID() {
+        return bookId;
+    }
+
     @JsonFormat( pattern = "dd/MM/yyyy HH:mm")
     public LocalDateTime getLocalDateTime() {
         return localDateTime;
@@ -83,4 +87,6 @@ public class Booking {
                 ", persons=" + persons + '\'' +
                 '}';
     }
+
+
 }

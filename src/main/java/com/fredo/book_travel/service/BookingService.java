@@ -8,6 +8,7 @@ import com.fredo.book_travel.entity.Booking;
 import com.fredo.book_travel.entity.User;
 import com.fredo.book_travel.repository.BookingRepository;
 import com.fredo.book_travel.repository.UserRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,21 +30,31 @@ public class BookingService {
     }
 
     //--------GET PARTICULAR BOOKING BY USING ITS ID--------
-    public BookingResponseDto getBooking(Integer id) {
+    public BookingResponseDto getBooking(Integer id, Authentication auth) {
+        //----HERE WE SEARCH FOR THE CURRENT LOGGED-IN USER FROM THE JWT TOKEN THAT WILL BE PROVIDED IN THE HEADER
+        String username = auth.getName();
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("You can only get your booking"));
+
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new RuntimeException("Booking Not Found"));
         return BookingMapper.ToResponseDto(booking);
     }
     
     //---------GET A PARTICULAR USER'S BOOKINGS--------
-    public List<BookingResponseDto> getUserBookings(Integer id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User Not Found"));
+    public List<BookingResponseDto> getUserBookings(Authentication auth) {
+
+        String username = auth.getName();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User Not Found"));
         return user.getBookings().stream().map(BookingMapper::ToResponseDto).toList();
     }
 
     //---------CREATING OR ADDING A NEW USER---------
-    public void createBooking(CreateBookingRequestDto dto, Integer id) {
+    public String createBooking(CreateBookingRequestDto dto, Authentication auth) {
 
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User Not Found"));
+        //----HERE WE SEARCH FOR THE CURRENT LOGGED-IN USER FROM THE JWT TOKEN THAT WILL BE PROVIDED IN THE HEADER
+        String username = auth.getName();
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User Not Found"));
        //---------CONVERTING TO ENTITY---------
        Booking updated = BookingMapper.toEntity(dto);
 
@@ -56,10 +67,16 @@ public class BookingService {
         updated.setUser(user);
         Booking savedBooking = bookingRepository.save(updated);
 
+        return user.getName() + "!\n You have successfully created a booking with ID: " + updated.getID() + "_####";
     }
 
-    //THIS METHOD WILL BE RESPONSIBLE FOR THE PUT REQUEST LOGIC
-    public BookingResponseDto updateBooking(Integer id, UpdateBookingRequestDto dto) {
+    //--------THIS METHOD WILL BE RESPONSIBLE FOR THE PUT REQUEST LOGIC--------
+    public BookingResponseDto updateBooking(Integer id, UpdateBookingRequestDto dto, Authentication auth) {
+        //----HERE WE SEARCH FOR THE CURRENT LOGGED-IN USER FROM THE JWT TOKEN THAT WILL BE PROVIDED IN THE HEADER
+        String username = auth.getName();
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Sorry! you can only edit your own bookings"));
+
         Booking existing = bookingRepository.findById(id).orElseThrow(() -> new RuntimeException("Booking Not Found"));
         BookingMapper.UpdateToEntity(existing, dto);
 
@@ -72,7 +89,12 @@ public class BookingService {
         return BookingMapper.ToResponseDto(saved);
     }
 
-    public void deleteBooking(Integer id) {
+    public String deleteBooking(Integer id, Authentication auth) {
+        //----HERE WE SEARCH FOR THE CURRENT LOGGED-IN USER FROM THE JWT TOKEN THAT WILL BE PROVIDED IN THE HEADER
+        String username = auth.getName();
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("You can only delete your own booking"));
         bookingRepository.deleteById(id);
+        return "You have deleted a booking with ID: " + id + "_####";
     }
 }

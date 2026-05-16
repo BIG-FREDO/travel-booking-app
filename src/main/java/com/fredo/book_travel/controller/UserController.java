@@ -4,6 +4,8 @@ import com.fredo.book_travel.dto.request.UserRequest.CreateUserRequestDto;
 import com.fredo.book_travel.dto.request.UserRequest.UpdateUserRequestDto;
 import com.fredo.book_travel.dto.response.UserResponseDto;
 import com.fredo.book_travel.service.UserService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,30 +19,29 @@ public class UserController {
         this.service = service;
     }
 
-    //This section handles all the user request: GET, POST, PUT and DELETE a user's detail from my system. from here there are calls
-    //to the service class where all the logic are being handled.
-    @GetMapping("/getuser/{id}")
-    public UserResponseDto getUser(@PathVariable Integer id){
-        return service.getUser(id);
+    //----This section handles all the user request: GET, POST, PUT and DELETE a user's detail from my system. from here there are calls
+    //----to the service class where all the logic are being handled.
+    @GetMapping("/viewProfil")
+    @PreAuthorize("hasAnyRole('USER')")
+    public UserResponseDto getUser(Authentication auth){
+        return service.getUser(auth);
     }
 
-    @GetMapping("/getusers")
+    @GetMapping("/getUsers")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public List<UserResponseDto> GetUsers(){
         return service.getUsers();
     }
 
-    @PostMapping("/createaccount")
-    public void createUser(@RequestBody CreateUserRequestDto dto){
-        service.createUser(dto);
+    @PutMapping("/updateProfile")
+    @PreAuthorize("hasRole('USER')")
+    public String updateUser(@RequestBody UpdateUserRequestDto dto, Authentication auth){
+        return service.updateUser(dto, auth);
     }
 
-    @PutMapping("/updateuser/{id}")
-    public String updateUser(@RequestBody UpdateUserRequestDto dto, @PathVariable Integer id){
-        return service.updateUser(dto, id);
-    }
-
-    @DeleteMapping("/deleteuser/{id}")
-    public void deleteUser(@PathVariable Integer id){
-        service.deleteUser(id);
+    @DeleteMapping("/deleteAccount/{id}")
+    @PreAuthorize("hasAnyRole('USER')")
+    public String deleteUser(@PathVariable Integer id, Authentication auth){
+        return service.deleteUser(id, auth);
     }
 }
