@@ -55,7 +55,7 @@ public class UserService {
         //----HERE WE SEARCH FOR THE CURRENT LOGGED-IN USER FROM THE JWT TOKEN THAT WILL BE PROVIDED IN THE HEADER----
         String username = auth.getName();
 
-        User user = repo.findByUsername(username).orElseThrow(() -> new RuntimeException("Delete failed"));
+        repo.findByUsername(username).orElseThrow(() -> new RuntimeException("Delete failed"));
         repo.deleteById(id);
         return "Account deleted: "+ username;
     }

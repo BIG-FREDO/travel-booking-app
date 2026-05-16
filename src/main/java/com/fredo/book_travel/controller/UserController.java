@@ -1,6 +1,5 @@
 package com.fredo.book_travel.controller;
 
-import com.fredo.book_travel.dto.request.UserRequest.CreateUserRequestDto;
 import com.fredo.book_travel.dto.request.UserRequest.UpdateUserRequestDto;
 import com.fredo.book_travel.dto.response.UserResponseDto;
 import com.fredo.book_travel.service.UserService;
