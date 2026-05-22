@@ -22,7 +22,7 @@ public class AuthController {
         return authService.login(dto);
     }
 
-    @PostMapping("/createaccount")
+    @PostMapping("/createAccount")
     public String createAccount(@RequestBody CreateUserRequestDto dto){
         return authService.createUser(dto);
     }

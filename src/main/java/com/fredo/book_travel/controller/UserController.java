@@ -20,7 +20,7 @@ public class UserController {
 
     //----This section handles all the user request: GET, POST, PUT and DELETE a user's detail from my system. from here there are calls
     //----to the service class where all the logic are being handled.
-    @GetMapping("/viewProfil")
+    @GetMapping("/viewProfile")
     @PreAuthorize("hasAnyRole('USER')")
     public UserResponseDto getUser(Authentication auth){
         return service.getUser(auth);
@@ -43,4 +43,6 @@ public class UserController {
     public String deleteUser(@PathVariable Integer id, Authentication auth){
         return service.deleteUser(id, auth);
     }
+
+
 }
