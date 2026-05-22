@@ -14,7 +14,7 @@ A robust Spring Boot REST API for managing travel bookings with secure user auth
 ## Technologies Used
 
 - Java 21
-- Spring Boot 3.5
+- Spring Boot 4.0.5
 - Spring Security + JWT
 - JPA / Hibernate
 - H2 for development
