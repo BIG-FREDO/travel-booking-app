@@ -4,6 +4,7 @@ import com.fredo.book_travel.dto.request.UserRequest.CreateUserRequestDto;
 import com.fredo.book_travel.dto.request.UserRequest.UpdateUserRequestDto;
 import com.fredo.book_travel.dto.response.UserResponseDto;
 import com.fredo.book_travel.entity.User;
+import com.fredo.book_travel.exception.customExceptions.InvalidRoleException;
 import com.fredo.book_travel.security.rolseAndPermissions.Role;
 
 public class UserMapper {
@@ -25,7 +26,7 @@ public class UserMapper {
         Role roleValue = switch (role){
             case "ADMIN" -> Role.ADMIN;
             case "USER" -> Role.USER;
-            default -> throw new RuntimeException("Invalid role. Only USER or  ADMIN is allowed");
+            default -> throw new InvalidRoleException("Invalid role. Only USER or  ADMIN is allowed");
         };
         user.setRole(roleValue);
 

@@ -4,6 +4,7 @@ import com.fredo.book_travel.Mapper.UserMapper;
 import com.fredo.book_travel.dto.request.UserRequest.UpdateUserRequestDto;
 import com.fredo.book_travel.dto.response.UserResponseDto;
 import com.fredo.book_travel.entity.User;
+import com.fredo.book_travel.exception.customExceptions.ResourceNotFoundException;
 import com.fredo.book_travel.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,7 +28,7 @@ public class UserService {
     public UserResponseDto getUser(Authentication auth) {
 
         String username = auth.getName();
-        User user = repo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = repo.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return UserMapper.toResponseDto(user);
     }
 
@@ -39,7 +40,7 @@ public class UserService {
     public String updateUser(UpdateUserRequestDto dto, Authentication auth) {
 
         String username = auth.getName();
-        User existing = repo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        User existing = repo.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         //--------CONVERTING FROM DTO TO ENTITY--------
         UserMapper.UpdateToEntity(existing, dto);
@@ -55,7 +56,7 @@ public class UserService {
         //----HERE WE SEARCH FOR THE CURRENT LOGGED-IN USER FROM THE JWT TOKEN THAT WILL BE PROVIDED IN THE HEADER----
         String username = auth.getName();
 
-        repo.findByUsername(username).orElseThrow(() -> new RuntimeException("Delete failed"));
+        repo.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("Delete failed"));
         repo.deleteById(id);
         return "Account deleted: "+ username;
     }
